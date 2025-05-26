@@ -2,9 +2,16 @@
   "name": "@single-push/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "lint": "nx lint",
+    "start:week": "nx serve week",
+    "start:friday": "nx serve friday",
+    "start:all-remotes": "nx run-many --target=serve --projects=friday,monday,tuesday,wednesday,thursday,saturday,sunday --parallel",
+    "start:mf": "nx serve week"
+  },
   "private": true,
   "dependencies": {
+    "@angular/animations": "~19.2.0",
     "@angular/common": "~19.2.0",
     "@angular/compiler": "~19.2.0",
     "@angular/core": "~19.2.0",
@@ -12,8 +19,10 @@
     "@angular/platform-browser": "~19.2.0",
     "@angular/platform-browser-dynamic": "~19.2.0",
     "@angular/router": "~19.2.0",
+    "@nx/module-federation": "^21.1.2",
     "rxjs": "~7.8.0",
-    "zone.js": "~0.15.0"
+    "zone.js": "~0.15.0",
+    "@nx/angular": "21.1.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~19.2.0",
@@ -23,7 +32,7 @@
     "@angular/compiler-cli": "~19.2.0",
     "@angular/language-service": "~19.2.0",
     "@eslint/js": "^9.8.0",
-    "@nx/angular": "21.1.0",
+    "@module-federation/enhanced": "^0.9.0",
     "@nx/devkit": "21.1.0",
     "@nx/eslint": "21.1.0",
     "@nx/eslint-plugin": "21.1.0",
@@ -31,6 +40,7 @@
     "@nx/js": "21.1.0",
     "@nx/playwright": "21.1.0",
     "@nx/web": "21.1.0",
+    "@nx/webpack": "21.1.0",
     "@nx/workspace": "21.1.0",
     "@playwright/test": "^1.36.0",
     "@schematics/angular": "~19.2.0",

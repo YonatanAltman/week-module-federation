@@ -14,7 +14,21 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@single-push/auth": ["libs/auth/src/index.ts"],
+      "@single-push/header": ["libs/ui/header/src/index.ts"],
+      "@single-push/login": ["libs/login/src/index.ts"],
+      "@single-push/nav-bar": ["libs/ui/nav-bar/src/index.ts"],
+      "friday/Routes": ["apps/friday/src/app/remote-entry/entry.routes.ts"],
+      "monday/Routes": ["apps/monday/src/app/remote-entry/entry.routes.ts"],
+      "saturday/Routes": ["apps/saturday/src/app/remote-entry/entry.routes.ts"],
+      "sunday/Routes": ["apps/sunday/src/app/remote-entry/entry.routes.ts"],
+      "thursday/Routes": ["apps/thursday/src/app/remote-entry/entry.routes.ts"],
+      "tuesday/Routes": ["apps/tuesday/src/app/remote-entry/entry.routes.ts"],
+      "wednesday/Routes": [
+        "apps/wednesday/src/app/remote-entry/entry.routes.ts"
+      ]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

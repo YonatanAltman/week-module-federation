@@ -1,0 +1,9 @@
+{
+  "name": "monday-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/monday-e2e/src",
+  "implicitDependencies": ["monday"],
+  "// targets": "to see all targets run: nx show project monday-e2e --web",
+  "targets": {}
+}

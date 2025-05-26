@@ -1,0 +1,23 @@
+@if(username()) {
+<ul class="remote-menu">
+  <li>
+    <a
+      routerLink="/"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      >Home</a
+    >
+  </li>
+  <li><a routerLink="sunday" routerLinkActive="active">Sunday</a></li>
+  <li><a routerLink="monday" routerLinkActive="active">Monday</a></li>
+  <li><a routerLink="tuesday" routerLinkActive="active">Tuesday</a></li>
+  <li><a routerLink="wednesday" routerLinkActive="active">Wednesday</a></li>
+  <li><a routerLink="thursday" routerLinkActive="active">Thursday</a></li>
+  <li><a routerLink="friday" routerLinkActive="active">Friday</a></li>
+  <li><a routerLink="saturday" routerLinkActive="active">Saturday</a></li>
+  <li class="logout-item"><button (click)="logout()">Logout</button></li>
+</ul>
+<div class="remote-content">
+  <router-outlet></router-outlet>
+</div>
+}

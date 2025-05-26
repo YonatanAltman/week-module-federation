@@ -1,0 +1,70 @@
+<div class="auth-container">
+  <div class="login-card">
+    <div class="card-header">
+      <h2>Welcome Back</h2>
+      <p>Please sign in to your account</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          placeholder="Enter your username"
+          [class.error]="username?.invalid && username?.touched"
+        />
+        @if (username?.invalid && username?.touched) {
+        <div class="error-message">
+          @if (username?.errors?.['required']) {
+          <span>Username is required</span>
+          } @if (username?.errors?.['minlength']) {
+          <span>Username must be at least 3 characters</span>
+          }
+        </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="Enter your password"
+          [class.error]="password?.invalid && password?.touched"
+        />
+        @if (password?.invalid && password?.touched) {
+        <div class="error-message">
+          @if (password?.errors?.['required']) {
+          <span>Password is required</span>
+          } @if (password?.errors?.['minlength']) {
+          <span>Password must be at least 6 characters</span>
+          }
+        </div>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="login-button"
+        [disabled]="isSubmitting"
+        [class.loading]="isSubmitting"
+      >
+        @if (!isSubmitting) {
+        <span>Sign In</span>
+        } @if (isSubmitting) {
+        <span>
+          <span class="spinner"></span>
+          Signing In...
+        </span>
+        }
+      </button>
+    </form>
+
+    <div class="card-footer">
+      <p>Demo credentials: any username (3+ chars) and password (6+ chars)</p>
+    </div>
+  </div>
+</div>
