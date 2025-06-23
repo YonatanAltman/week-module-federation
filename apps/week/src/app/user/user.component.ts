@@ -27,9 +27,11 @@ import { BehaviorSubject, map, of, switchMap, tap } from 'rxjs';
 })
 export class UserComponent {
   readonly user = signal<User | null>(null);
+  readonly brand= signal<any | null>(null);
   readonly fullname = computed(()=>{
     const user = this.user();
-    return user?.firstName + ' ' + user?.lastName;
+    const brand = this.brand();
+    return userFullname(user, brand);
   });
   fullname2  = '';
 
@@ -66,4 +68,11 @@ export class UserComponent {
       });
     }, 5000);
   }
+}
+
+
+
+const userFullname = (user:User | null, brand?:any) => {
+  if(!user) return '';
+  return user?.firstName + ' ' + user?.lastName + ' ' + brand?.name;
 }
