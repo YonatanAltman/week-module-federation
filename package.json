@@ -7,7 +7,11 @@
     "start:week": "nx serve week",
     "start:friday": "nx serve friday",
     "start:all-remotes": "nx run-many --target=serve --projects=friday,monday,tuesday,wednesday,thursday,saturday,sunday --parallel",
-    "start:mf": "nx serve week"
+    "start:mf": "nx serve week",
+    "dev": "./start-apps.sh",
+    "dev:all": "./start-apps.sh --all",
+    "dev:win": "start-apps.bat",
+    "dev:all:win": "start-apps.bat --all"
   },
   "private": true,
   "dependencies": {

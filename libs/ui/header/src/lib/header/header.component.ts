@@ -1,4 +1,5 @@
-import { Component, input } from '@angular/core';
+import { Component, input, inject } from '@angular/core';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'lib-header',
@@ -9,4 +10,10 @@ import { Component, input } from '@angular/core';
 export class HeaderComponent {
   name = input('');
   username = input<string | null>(null);
+  
+  private location = inject(Location);
+  
+  goBack() {
+    this.location.back();
+  }
 }

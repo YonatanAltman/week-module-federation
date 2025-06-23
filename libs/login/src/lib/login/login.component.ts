@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
   imports: [ReactiveFormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
+  standalone: true,
 })
 export class LoginComponent {
   readonly #router = inject(Router);
