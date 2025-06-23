@@ -1,9 +1,10 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '@single-push/auth';
+import { UserComponent } from "./user/user.component";
 
 @Component({
-  imports: [RouterModule],
+  imports: [RouterModule, UserComponent],
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
