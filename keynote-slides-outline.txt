@@ -1,0 +1,173 @@
+Module Federation Production Deployment
+	Deploying Micro-Frontends at Scale
+	From Development to https://my-awesome-week
+
+Agenda
+	Current Architecture Overview
+	Production Deployment Strategy
+	Configuration Changes
+	Deployment Process
+	How It Works in Production
+	Security & Performance
+	Benefits & Best Practices
+
+Current Development Setup
+	Host Application: week → localhost:4200
+	Remote Applications:
+		monday → localhost:4202
+		tuesday → localhost:4203
+		wednesday → localhost:4204
+		thursday → localhost:4205
+		friday → localhost:4201
+		saturday → localhost:4206
+		sunday → localhost:4207
+
+What is Module Federation?
+	Module Federation allows separate applications to share code at runtime
+	Host Application: Loads and orchestrates remotes
+	Remote Applications: Independent micro-frontends
+	Lazy Loading: Load remotes only when needed
+	Runtime Integration: No build-time coupling
+
+Production Deployment Strategy
+	Production URLs:
+		https://my-awesome-week/ → Host (week)
+		https://monday.my-awesome-week/ → Monday Remote
+		https://tuesday.my-awesome-week/ → Tuesday Remote
+		https://wednesday.my-awesome-week/ → Wednesday Remote
+		https://thursday.my-awesome-week/ → Thursday Remote
+		https://friday.my-awesome-week/ → Friday Remote
+		https://saturday.my-awesome-week/ → Saturday Remote
+		https://sunday.my-awesome-week/ → Sunday Remote
+
+Alternative: Subpath Deployment
+	Single Domain Approach:
+		https://my-awesome-week/ → Host Application
+		https://my-awesome-week/remotes/monday/ → Monday Remote
+		https://my-awesome-week/remotes/tuesday/ → Tuesday Remote
+		https://my-awesome-week/remotes/wednesday/ → Wednesday Remote
+		https://my-awesome-week/remotes/thursday/ → Thursday Remote
+		https://my-awesome-week/remotes/friday/ → Friday Remote
+		https://my-awesome-week/remotes/saturday/ → Saturday Remote
+		https://my-awesome-week/remotes/sunday/ → Sunday Remote
+
+Host Application Configuration
+	Update apps/week/webpack.prod.config.ts:
+		export default withModuleFederation({
+		  ...config,
+		  remotes: [
+		    ['monday', 'https://monday.my-awesome-week'],
+		    ['tuesday', 'https://tuesday.my-awesome-week'],
+		    ['wednesday', 'https://wednesday.my-awesome-week'],
+		    ['thursday', 'https://thursday.my-awesome-week'],
+		    ['friday', 'https://friday.my-awesome-week'],
+		    ['saturday', 'https://saturday.my-awesome-week'],
+		    ['sunday', 'https://sunday.my-awesome-week'],
+		  ],
+		}, { dts: false });
+
+Remote Application Configuration
+	Each remote specifies its production URL
+	Example for apps/monday/webpack.prod.config.ts:
+		export default withModuleFederation({
+		  ...config,
+		  publicPath: 'https://monday.my-awesome-week/',
+		}, { dts: false });
+
+Production Build Scripts
+	Add to package.json:
+		"build:prod": "nx run-many --target=build --projects=week,monday,tuesday,wednesday,thursday,friday,saturday,sunday --configuration=production --parallel"
+		"build:host": "nx build week --configuration=production"
+		"build:remotes": "nx run-many --target=build --projects=monday,tuesday,wednesday,thursday,friday,saturday,sunday --configuration=production --parallel"
+
+Deployment Process
+	1. Build All Applications
+		npm run build:prod
+	2. Deploy Host Application
+		Deploy dist/apps/week/ to https://my-awesome-week/
+	3. Deploy Remote Applications
+		Deploy dist/apps/monday/ to https://monday.my-awesome-week/
+		Deploy dist/apps/tuesday/ to https://tuesday.my-awesome-week/
+		And so on...
+
+Server Configuration
+	Nginx Configuration Required:
+		Enable CORS for module federation
+		Configure SSL for all domains
+		Set up proper routing for SPAs
+		Example: add_header Access-Control-Allow-Origin *;
+
+How It Works in Production
+	Initial Load
+		User visits https://my-awesome-week/
+		Only the host application loads
+		No remote applications loaded initially
+	Route Navigation
+		User navigates to /monday route
+		Angular router triggers: import('monday/Routes')
+		Webpack fetches from https://monday.my-awesome-week/
+		Remote module loads and renders
+
+Performance & Caching Benefits
+	Independent Caching: Each remote cached separately
+	Independent Updates: Update remotes without touching host
+	Lazy Loading: Users only download what they visit
+	Targeted Deployments: Deploy only changed applications
+
+Development vs Production
+	Development:
+		Host URL: http://localhost:4200
+		Remote URLs: http://localhost:4201-4207
+		Module Federation: Auto-discovery via Nx
+		CORS: Not required
+	Production:
+		Host URL: https://my-awesome-week
+		Remote URLs: https://{day}.my-awesome-week
+		Module Federation: Explicit URL configuration
+		CORS: Required for cross-origin loading
+
+Security Considerations
+	CORS Configuration
+		Configure CORS properly for cross-origin module loading
+		Restrict origins in production (avoid * wildcard)
+	Content Security Policy
+		<meta http-equiv="Content-Security-Policy" content="script-src 'self' https://*.my-awesome-week; object-src 'none';">
+	Authentication
+		Ensure authentication works across all remotes
+		Consider shared authentication service or tokens
+
+Deployment Strategies
+	Independent Deployment
+		Each remote deployed independently
+		No host redeployment needed
+		Different teams, different schedules
+	Versioning Strategy
+		Version your remotes for better control
+		Example: https://monday.my-awesome-week/v1.2.0/
+		Better control and rollbacks
+
+Monitoring & Debugging
+	Loading Errors: Monitor module federation failures
+	Performance: Track loading times for each remote
+	Debug Tools: Browser dev tools for inspection
+	Bundle Analysis: Monitor bundle sizes
+	Pro Tip: Implement fallback mechanisms for failed remote loads
+
+Key Benefits
+	Scalability: Each remote can be developed and deployed independently
+	Performance: Lazy loading ensures users only download needed code
+	Maintainability: Clear separation of concerns between application parts
+	Team Independence: Different teams work on different remotes without conflicts
+
+Best Practices
+	Keep remotes focused: Single responsibility per remote
+	Optimize bundle sizes: Monitor and split appropriately
+	Version your APIs: Maintain compatibility between remotes
+	Test integration: Test host-remote interactions
+	Monitor performance: Track loading times and errors
+	Secure communication: Proper CORS and CSP configuration
+
+Questions?
+	Module Federation Production Deployment
+	From localhost to https://my-awesome-week
+	Ready to deploy micro-frontends at scale! 

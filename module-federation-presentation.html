@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Federation Production Deployment</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/theme/white.css" id="theme">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/highlight/monokai.css">
+    <style>
+        .reveal h1, .reveal h2, .reveal h3 { color: #2c3e50; }
+        .reveal .slides section { text-align: left; }
+        .title-slide { text-align: center !important; }
+        .architecture-diagram { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .benefit-list li { margin: 10px 0; }
+        .code-example { font-size: 0.8em; }
+        .highlight-box { background: #e3f2fd; padding: 15px; border-left: 4px solid #2196f3; margin: 15px 0; }
+        pre code { font-size: 0.7em; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            
+            <!-- Title Slide -->
+            <section class="title-slide">
+                <h1>Module Federation</h1>
+                <h2>Production Deployment</h2>
+                <p><strong>Deploying Micro-Frontends at Scale</strong></p>
+                <p><small>From Development to https://my-awesome-week</small></p>
+            </section>
+
+            <!-- Agenda -->
+            <section>
+                <h2>Agenda</h2>
+                <ul>
+                    <li>Current Architecture Overview</li>
+                    <li>Production Deployment Strategy</li>
+                    <li>Configuration Changes</li>
+                    <li>Deployment Process</li>
+                    <li>How It Works in Production</li>
+                    <li>Security & Performance</li>
+                    <li>Benefits & Best Practices</li>
+                </ul>
+            </section>
+
+            <!-- Current Development Setup -->
+            <section>
+                <h2>Current Development Setup</h2>
+                <div class="architecture-diagram">
+                    <h3>Development Architecture</h3>
+                    <ul>
+                        <li><strong>Host Application:</strong> <code>week</code> → localhost:4200</li>
+                        <li><strong>Remote Applications:</strong></li>
+                        <ul>
+                            <li><code>monday</code> → localhost:4202</li>
+                            <li><code>tuesday</code> → localhost:4203</li>
+                            <li><code>wednesday</code> → localhost:4204</li>
+                            <li><code>thursday</code> → localhost:4205</li>
+                            <li><code>friday</code> → localhost:4201</li>
+                            <li><code>saturday</code> → localhost:4206</li>
+                            <li><code>sunday</code> → localhost:4207</li>
+                        </ul>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- What is Module Federation -->
+            <section>
+                <h2>What is Module Federation?</h2>
+                <div class="highlight-box">
+                    <p><strong>Module Federation</strong> allows separate applications to share code at runtime</p>
+                </div>
+                <ul class="benefit-list">
+                    <li>🏠 <strong>Host Application:</strong> Loads and orchestrates remotes</li>
+                    <li>📡 <strong>Remote Applications:</strong> Independent micro-frontends</li>
+                    <li>⚡ <strong>Lazy Loading:</strong> Load remotes only when needed</li>
+                    <li>🔄 <strong>Runtime Integration:</strong> No build-time coupling</li>
+                </ul>
+            </section>
+
+            <!-- Production Architecture -->
+            <section>
+                <h2>Production Deployment Strategy</h2>
+                <div class="architecture-diagram">
+                    <h3>Production URLs</h3>
+                    <pre><code>
+https://my-awesome-week/                    → Host (week)
+https://monday.my-awesome-week/             → Monday Remote
+https://tuesday.my-awesome-week/            → Tuesday Remote  
+https://wednesday.my-awesome-week/          → Wednesday Remote
+https://thursday.my-awesome-week/           → Thursday Remote
+https://friday.my-awesome-week/             → Friday Remote
+https://saturday.my-awesome-week/           → Saturday Remote
+https://sunday.my-awesome-week/             → Sunday Remote
+                    </code></pre>
+                </div>
+            </section>
+
+            <!-- Alternative Architecture -->
+            <section>
+                <h2>Alternative: Subpath Deployment</h2>
+                <div class="architecture-diagram">
+                    <h3>Single Domain Approach</h3>
+                    <pre><code>
+https://my-awesome-week/                    → Host Application
+https://my-awesome-week/remotes/monday/     → Monday Remote
+https://my-awesome-week/remotes/tuesday/    → Tuesday Remote
+https://my-awesome-week/remotes/wednesday/  → Wednesday Remote
+https://my-awesome-week/remotes/thursday/   → Thursday Remote
+https://my-awesome-week/remotes/friday/     → Friday Remote
+https://my-awesome-week/remotes/saturday/   → Saturday Remote
+https://my-awesome-week/remotes/sunday/     → Sunday Remote
+                    </code></pre>
+                </div>
+            </section>
+
+            <!-- Configuration Changes -->
+            <section>
+                <h2>Key Configuration Changes</h2>
+                <h3>1. Host Application Webpack Config</h3>
+                <pre><code class="typescript code-example">
+// apps/week/webpack.prod.config.ts
+export default withModuleFederation({
+  ...config,
+  remotes: [
+    ['monday', 'https://monday.my-awesome-week'],
+    ['tuesday', 'https://tuesday.my-awesome-week'],
+    ['wednesday', 'https://wednesday.my-awesome-week'],
+    ['thursday', 'https://thursday.my-awesome-week'],
+    ['friday', 'https://friday.my-awesome-week'],
+    ['saturday', 'https://saturday.my-awesome-week'],
+    ['sunday', 'https://sunday.my-awesome-week'],
+  ],
+}, { dts: false });
+                </code></pre>
+            </section>
+
+            <!-- Remote Configuration -->
+            <section>
+                <h2>Remote Application Configuration</h2>
+                <h3>Remote Webpack Config Example</h3>
+                <pre><code class="typescript code-example">
+// apps/monday/webpack.prod.config.ts
+export default withModuleFederation({
+  ...config,
+  // Optional: Specify the public path for this remote
+  publicPath: 'https://monday.my-awesome-week/',
+}, { dts: false });
+                </code></pre>
+                <div class="highlight-box">
+                    <p><strong>Key Point:</strong> Each remote specifies its production URL</p>
+                </div>
+            </section>
+
+            <!-- Build Scripts -->
+            <section>
+                <h2>Production Build Scripts</h2>
+                <pre><code class="json code-example">
+{
+  "scripts": {
+    "build:prod": "nx run-many --target=build \
+      --projects=week,monday,tuesday,wednesday,thursday,friday,saturday,sunday \
+      --configuration=production --parallel",
+    
+    "build:host": "nx build week --configuration=production",
+    
+    "build:remotes": "nx run-many --target=build \
+      --projects=monday,tuesday,wednesday,thursday,friday,saturday,sunday \
+      --configuration=production --parallel"
+  }
+}
+                </code></pre>
+            </section>
+
+            <!-- Deployment Process -->
+            <section>
+                <h2>Deployment Process</h2>
+                <ol>
+                    <li><strong>Build All Applications</strong>
+                        <pre><code>npm run build:prod</code></pre>
+                    </li>
+                    <li><strong>Deploy Host Application</strong>
+                        <p>Deploy <code>dist/apps/week/</code> to <code>https://my-awesome-week/</code></p>
+                    </li>
+                    <li><strong>Deploy Remote Applications</strong>
+                        <ul>
+                            <li>Deploy <code>dist/apps/monday/</code> to <code>https://monday.my-awesome-week/</code></li>
+                            <li>Deploy <code>dist/apps/tuesday/</code> to <code>https://tuesday.my-awesome-week/</code></li>
+                            <li>And so on...</li>
+                        </ul>
+                    </li>
+                </ol>
+            </section>
+
+            <!-- Server Configuration -->
+            <section>
+                <h2>Server Configuration (Nginx)</h2>
+                <pre><code class="nginx code-example">
+# Host application
+server {
+    listen 443 ssl;
+    server_name my-awesome-week;
+    
+    location / {
+        root /var/www/week;
+        try_files $uri $uri/ /index.html;
+        
+        # Enable CORS for module federation
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+        add_header Access-Control-Allow-Headers 'Content-Type';
+    }
+}
+
+# Monday remote
+server {
+    listen 443 ssl;
+    server_name monday.my-awesome-week;
+    
+    location / {
+        root /var/www/monday;
+        try_files $uri $uri/ /index.html;
+        add_header Access-Control-Allow-Origin *;
+    }
+}
+                </code></pre>
+            </section>
+
+            <!-- How It Works -->
+            <section>
+                <h2>How It Works in Production</h2>
+                <div class="highlight-box">
+                    <h3>🚀 Initial Load</h3>
+                    <p>User visits <code>https://my-awesome-week/</code><br>
+                    → Only the host application loads<br>
+                    → No remote applications loaded initially</p>
+                </div>
+                <div class="highlight-box">
+                    <h3>📡 Route Navigation</h3>
+                    <p>User navigates to <code>/monday</code><br>
+                    → Angular router triggers: <code>import('monday/Routes')</code><br>
+                    → Webpack fetches from <code>https://monday.my-awesome-week/</code><br>
+                    → Remote module loads and renders</p>
+                </div>
+            </section>
+
+            <!-- Performance Benefits -->
+            <section>
+                <h2>Performance & Caching</h2>
+                <ul class="benefit-list">
+                    <li>💾 <strong>Independent Caching:</strong> Each remote cached separately</li>
+                    <li>🔄 <strong>Independent Updates:</strong> Update remotes without touching host</li>
+                    <li>⚡ <strong>Lazy Loading:</strong> Users only download what they visit</li>
+                    <li>🎯 <strong>Targeted Deployments:</strong> Deploy only changed applications</li>
+                </ul>
+            </section>
+
+            <!-- Development vs Production -->
+            <section>
+                <h2>Development vs Production</h2>
+                <table style="width: 100%; font-size: 0.8em;">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Development</th>
+                            <th>Production</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Host URL</strong></td>
+                            <td>http://localhost:4200</td>
+                            <td>https://my-awesome-week</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Remote URLs</strong></td>
+                            <td>http://localhost:4201-4207</td>
+                            <td>https://{day}.my-awesome-week</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Module Federation</strong></td>
+                            <td>Auto-discovery via Nx</td>
+                            <td>Explicit URL configuration</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CORS</strong></td>
+                            <td>Not required</td>
+                            <td>Required for cross-origin loading</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Security Considerations -->
+            <section>
+                <h2>Security Considerations</h2>
+                <div class="highlight-box">
+                    <h3>🔒 CORS Configuration</h3>
+                    <p>Configure CORS properly for cross-origin module loading<br>
+                    <em>Restrict origins in production (avoid * wildcard)</em></p>
+                </div>
+                <div class="highlight-box">
+                    <h3>🛡️ Content Security Policy</h3>
+                    <pre><code>&lt;meta http-equiv="Content-Security-Policy" 
+      content="script-src 'self' https://*.my-awesome-week; object-src 'none';"&gt;</code></pre>
+                </div>
+                <div class="highlight-box">
+                    <h3>🔐 Authentication</h3>
+                    <p>Ensure authentication works across all remotes<br>
+                    <em>Consider shared authentication service or tokens</em></p>
+                </div>
+            </section>
+
+            <!-- Deployment Strategies -->
+            <section>
+                <h2>Deployment Strategies</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="highlight-box">
+                        <h3>🔄 Independent Deployment</h3>
+                        <ul>
+                            <li>Each remote deployed independently</li>
+                            <li>No host redeployment needed</li>
+                            <li>Different teams, different schedules</li>
+                        </ul>
+                    </div>
+                    <div class="highlight-box">
+                        <h3>📝 Versioning Strategy</h3>
+                        <ul>
+                            <li>Version your remotes</li>
+                            <li>Example: <code>/v1.2.0/</code></li>
+                            <li>Better control and rollbacks</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Monitoring -->
+            <section>
+                <h2>Monitoring & Debugging</h2>
+                <ul class="benefit-list">
+                    <li>📊 <strong>Loading Errors:</strong> Monitor module federation failures</li>
+                    <li>⚡ <strong>Performance:</strong> Track loading times for each remote</li>
+                    <li>🔧 <strong>Debug Tools:</strong> Browser dev tools for inspection</li>
+                    <li>📈 <strong>Bundle Analysis:</strong> Monitor bundle sizes</li>
+                </ul>
+                <div class="highlight-box">
+                    <p><strong>Pro Tip:</strong> Implement fallback mechanisms for failed remote loads</p>
+                </div>
+            </section>
+
+            <!-- Benefits Summary -->
+            <section>
+                <h2>Key Benefits</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 0.9em;">
+                    <div class="highlight-box">
+                        <h3>🚀 Scalability</h3>
+                        <p>Each remote can be developed and deployed independently</p>
+                    </div>
+                    <div class="highlight-box">
+                        <h3>⚡ Performance</h3>
+                        <p>Lazy loading ensures users only download needed code</p>
+                    </div>
+                    <div class="highlight-box">
+                        <h3>🔧 Maintainability</h3>
+                        <p>Clear separation of concerns between application parts</p>
+                    </div>
+                    <div class="highlight-box">
+                        <h3>👥 Team Independence</h3>
+                        <p>Different teams work on different remotes without conflicts</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CDN Integration -->
+            <section>
+                <h2>CDN Integration (Optional)</h2>
+                <p>For better performance, consider using a CDN:</p>
+                <pre><code class="typescript code-example">
+// In production webpack config
+export default withModuleFederation({
+  ...config,
+  remotes: [
+    ['monday', 'https://cdn.my-awesome-week.com/monday'],
+    ['tuesday', 'https://cdn.my-awesome-week.com/tuesday'],
+    // etc...
+  ],
+}, { dts: false });
+                </code></pre>
+                <p><strong>Benefits:</strong> Faster loading, global distribution, edge caching</p>
+            </section>
+
+            <!-- Best Practices -->
+            <section>
+                <h2>Best Practices</h2>
+                <ul class="benefit-list">
+                    <li>🎯 <strong>Keep remotes focused:</strong> Single responsibility per remote</li>
+                    <li>📦 <strong>Optimize bundle sizes:</strong> Monitor and split appropriately</li>
+                    <li>🔄 <strong>Version your APIs:</strong> Maintain compatibility between remotes</li>
+                    <li>🧪 <strong>Test integration:</strong> Test host-remote interactions</li>
+                    <li>📈 <strong>Monitor performance:</strong> Track loading times and errors</li>
+                    <li>🛡️ <strong>Secure communication:</strong> Proper CORS and CSP configuration</li>
+                </ul>
+            </section>
+
+            <!-- Questions -->
+            <section class="title-slide">
+                <h2>Questions?</h2>
+                <p><strong>Module Federation Production Deployment</strong></p>
+                <p><small>From localhost to https://my-awesome-week</small></p>
+                <br>
+                <p>🚀 Ready to deploy micro-frontends at scale!</p>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/notes/notes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/markdown/markdown.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/highlight/highlight.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            transition: 'slide',
+            plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+        });
+    </script>
+</body>
+</html> 
